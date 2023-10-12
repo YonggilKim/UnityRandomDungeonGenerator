@@ -38,6 +38,7 @@ public class MapLocation
     {
         return 0;
     }
+
 }
 
 public class Maze : MonoBehaviour
@@ -49,7 +50,6 @@ public class Maze : MonoBehaviour
                                             new MapLocation(0,-1) };
 
     public List<MapLocation> pillarLocations = new List<MapLocation>();
-
     public int width = 30; //x length
     public int depth = 30; //z length
     public byte[,] map;
@@ -64,45 +64,7 @@ public class Maze : MonoBehaviour
     public GameObject floorpiece;
     public GameObject ceilingpiece;
 
-    public GameObject pillar;
-    public GameObject door;
-
     public GameObject FPC;
-
-    public enum PieceType
-    {
-        Horizontal_Straight,
-        Vertical_Straight,
-        Right_Up_Corner,
-        Right_Down_Corner,
-        Left_Up_Corner,
-        Left_Down_Corner,
-        T_Junction,
-        TUpsideDown,
-        TToLeft,
-        TToRight,
-        DeadEnd,
-        DeadUpsideDown,
-        DeadToRight,
-        DeadToLeft,
-        Wall,
-        Crossroad,
-        Room
-    }
-
-    public struct Pieces
-    {
-        public PieceType piece;
-        public GameObject model;
-
-        public Pieces(PieceType pt, GameObject m)
-        {
-            piece = pt;
-            model = m;
-        }
-    }
-
-    public Pieces[,] piecePlaces;
 
 
     // Start is called before the first frame update
@@ -110,7 +72,7 @@ public class Maze : MonoBehaviour
     {
         InitialiseMap();
         Generate();
-        AddRooms(5, 4, 10);
+        AddRooms(3, 4, 5);
         DrawMap();
         PlaceFPC();
     }
@@ -137,7 +99,6 @@ public class Maze : MonoBehaviour
     void InitialiseMap()
     {
         map = new byte[width,depth];
-        piecePlaces = new Pieces[width, depth];
         for (int z = 0; z < depth; z++)
             for (int x = 0; x < width; x++)
             {
@@ -179,26 +140,17 @@ public class Maze : MonoBehaviour
                     //GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     //wall.transform.localScale = new Vector3(scale, scale, scale);
                     // wall.transform.position = pos;
-
-                    piecePlaces[x, z].piece = PieceType.Wall;
-                    piecePlaces[x, z].model = null;
                 }
                 else if (Search2D(x, z, new int[] { 5, 1, 5, 0, 0, 1, 5, 1, 5 })) //horizontal end piece -|
                 {
                     GameObject block = Instantiate(endpiece);
                     block.transform.position = new Vector3(x * scale, 0, z * scale);
                     block.transform.Rotate(0, 180, 0);
-
-                    piecePlaces[x, z].piece = PieceType.DeadToRight;
-                    piecePlaces[x, z].model = block;
-
                 }
                 else if (Search2D(x, z, new int[] { 5, 1, 5, 1, 0, 0, 5, 1, 5 })) //horizontal end piece |-
                 {
                     GameObject block = Instantiate(endpiece);
                     block.transform.position = new Vector3(x * scale, 0, z * scale);
-                    piecePlaces[x, z].piece = PieceType.DeadToLeft;
-                    piecePlaces[x, z].model = block;
 
                 }
                 else if (Search2D(x, z, new int[] { 5, 1, 5, 1, 0, 1, 5, 0, 5 })) //vertical end piece T
@@ -206,260 +158,113 @@ public class Maze : MonoBehaviour
                     GameObject block = Instantiate(endpiece);
                     block.transform.position = new Vector3(x * scale, 0, z * scale);
                     block.transform.Rotate(0, 90, 0);
-                    piecePlaces[x, z].piece = PieceType.DeadEnd;
-                    piecePlaces[x, z].model = block;
                 }
                 else if (Search2D(x, z, new int[] { 5, 0, 5, 1, 0, 1, 5, 1, 5 })) //vertical end piece upside downT
                 {
                     GameObject block = Instantiate(endpiece);
                     block.transform.position = new Vector3(x * scale, 0, z * scale);
                     block.transform.Rotate(0, -90, 0);
-                    piecePlaces[x, z].piece = PieceType.DeadUpsideDown;
-                    piecePlaces[x, z].model = block;
                 }
                 else if (Search2D(x, z, new int[] { 5, 0, 5, 1, 0, 1, 5, 0, 5 })) //vertical straight
                 {
                     Vector3 pos = new Vector3(x * scale, 0, z * scale);
                     GameObject go = Instantiate(straight, pos, Quaternion.identity);
                     go.transform.Rotate(0, 90, 0);
-                    piecePlaces[x, z].piece = PieceType.Vertical_Straight;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 5, 1, 5, 0, 0, 0, 5, 1, 5 })) //horizontal straight
                 {
                     Vector3 pos = new Vector3(x * scale, 0, z * scale);
                     GameObject go = Instantiate(straight, pos, Quaternion.identity);
-                    piecePlaces[x, z].piece = PieceType.Horizontal_Straight;
-                    piecePlaces[x, z].model = go;
 
                 }
                 else if (Search2D(x, z, new int[] { 1, 0, 1, 0, 0, 0, 1, 0, 1 })) //crossroad
                 {
                     GameObject go = Instantiate(crossroad);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
-                    piecePlaces[x, z].piece = PieceType.Crossroad;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 5, 1, 5, 0, 0, 1, 1, 0, 5 })) //upper left corner
                 {
                     GameObject go = Instantiate(corner);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
                     go.transform.Rotate(0, 180, 0);
-                    piecePlaces[x, z].piece = PieceType.Left_Up_Corner;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 5, 1, 5, 1, 0, 0, 5, 0, 1 })) //upper right corner
                 {
                     GameObject go = Instantiate(corner);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
                     go.transform.Rotate(0, 90, 0);
-                    piecePlaces[x, z].piece = PieceType.Right_Up_Corner;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 5, 0, 1, 1, 0, 0, 5, 1, 5 })) //lower right corner
                 {
                     GameObject go = Instantiate(corner);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
-                    piecePlaces[x, z].piece = PieceType.Right_Down_Corner;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 1, 0, 5, 5, 0, 1, 5, 1, 5 })) //lower left corner
                 {
                     GameObject go = Instantiate(corner);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
                     go.transform.Rotate(0, -90, 0);
-                    piecePlaces[x, z].piece = PieceType.Left_Down_Corner;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 1, 0, 1, 0, 0, 0, 5, 1, 5 })) //tjunc  upsidedown T
                 {
                     GameObject go = Instantiate(tIntersection);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
                     go.transform.Rotate(0, -90, 0);
-                    piecePlaces[x, z].piece = PieceType.TUpsideDown;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 5, 1, 5, 0, 0, 0, 1, 0, 1 })) //tjunc  T
                 {
                     GameObject go = Instantiate(tIntersection);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
                     go.transform.Rotate(0, 90, 0);
-                    piecePlaces[x, z].piece = PieceType.T_Junction;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 1, 0, 5, 0, 0, 1, 1, 0, 5 })) //tjunc  -|
                 {
                     GameObject go = Instantiate(tIntersection);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
                     go.transform.Rotate(0, 180, 0);
-                    piecePlaces[x, z].piece = PieceType.TToRight;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (Search2D(x, z, new int[] { 5, 0, 1, 1, 0, 0, 5, 0, 1 })) //tjunc  |-
                 {
                     GameObject go = Instantiate(tIntersection);
                     go.transform.position = new Vector3(x * scale, 0, z * scale);
-                    piecePlaces[x, z].piece = PieceType.TToLeft;
-                    piecePlaces[x, z].model = go;
                 }
                 else if (map[x, z] == 0 && (CountSquareNeighbours(x, z) > 1 && CountDiagonalNeighbours(x, z) >= 1 ||
                                             CountSquareNeighbours(x, z) >= 1 && CountDiagonalNeighbours(x, z) > 1))
                 {
                     GameObject floor = Instantiate(floorpiece);
                     floor.transform.position = new Vector3(x * scale, 0, z * scale);
-
+                
                     GameObject ceiling = Instantiate(ceilingpiece);
                     ceiling.transform.position = new Vector3(x * scale, 0, z * scale);
-
-                    piecePlaces[x, z].piece = PieceType.Room;
-                    piecePlaces[x, z].model = floor;
-
-                    GameObject pillarCorner;
+                
                     LocateWalls(x, z);
                     if (top)
                     {
                         GameObject wall1 = Instantiate(wallpiece);
                         wall1.transform.position = new Vector3(x * scale, 0, z * scale);
-               
-                        wall1.name = "Top Wall";
-
-                        if (map[x + 1, z] == 0 && map[x + 1, z + 1] == 0 && !pillarLocations.Contains(new MapLocation(x,z)))
-                        {
-                            pillarCorner = Instantiate(pillar);
-                            pillarCorner.transform.position = new Vector3(x * scale, 0, z * scale);
-                            pillarCorner.name = "Top Right";
-                            pillarLocations.Add(new MapLocation(x, z));
-                            pillarCorner.transform.localScale = new Vector3(1.01f, 1, 1.01f);
-                        }
-
-                        if (map[x - 1, z] == 0 && map[x - 1, z + 1] == 0 && !pillarLocations.Contains(new MapLocation(x - 1, z)))
-                        {
-                            pillarCorner = Instantiate(pillar);
-                            pillarCorner.transform.position = new Vector3((x-1) * scale, 0, z * scale);
-                            pillarCorner.name = "Top Left";
-                            pillarLocations.Add(new MapLocation(x - 1, z));
-                            pillarCorner.transform.localScale = new Vector3(1.01f, 1, 1.01f);
-                        }
+                        wall1.transform.Rotate(0, 90, 0);
                     }
-
+                
                     if (bottom)
                     {
                         GameObject wall2 = Instantiate(wallpiece);
                         wall2.transform.position = new Vector3(x * scale, 0, z * scale);
-                        wall2.transform.Rotate(0, 180, 0);
+                        wall2.transform.Rotate(0, -90, 0);
                         wall2.name = "Bottom Wall";
-
-                        if (map[x + 1, z] == 0 && map[x + 1, z - 1] == 0 && !pillarLocations.Contains(new MapLocation(x, z - 1)))
-                        {
-                            pillarCorner = Instantiate(pillar);
-                            pillarCorner.transform.position = new Vector3(x * scale, 0, ( z - 1) * scale);
-                            pillarCorner.name = "Bottom Right";
-                            pillarLocations.Add(new MapLocation(x, z - 1));
-                            pillarCorner.transform.localScale = new Vector3(1.01f, 1, 1.01f);
-                        }
-
-                        if (map[x - 1, z - 1] == 0 && map[x - 1, z] == 0 && !pillarLocations.Contains(new MapLocation(x - 1, z - 1)))
-                        {
-                            pillarCorner = Instantiate(pillar);
-                            pillarCorner.transform.position = new Vector3((x - 1) * scale, 0, (z - 1) * scale);
-                            pillarCorner.name = "Bottom Left";
-                            pillarLocations.Add(new MapLocation(x - 1, z - 1));
-                            pillarCorner.transform.localScale = new Vector3(1.01f, 1, 1.01f);
-                        }
                     }
-
+                
                     if (right)
                     {
                         GameObject wall3 = Instantiate(wallpiece);
                         wall3.transform.position = new Vector3(x * scale, 0, z * scale);
-                        wall3.transform.Rotate(0, 90, 0);
-                        wall3.name = "Right Wall";
-
-                        if (map[x + 1, z + 1] == 0 && map[x, z + 1] == 0 && !pillarLocations.Contains(new MapLocation(x, z - 1)))
-                        {
-                            pillarCorner = Instantiate(pillar);
-                            pillarCorner.transform.position = new Vector3(x * scale, 0, (z - 1) * scale);
-                            pillarCorner.name = "Right Top";
-                            pillarLocations.Add(new MapLocation(x, z - 1));
-                            pillarCorner.transform.localScale = new Vector3(1.01f, 1, 1.01f);
-                        }
-
-                        if (map[x, z - 1] == 0 && map[x + 1, z - 1] == 0 && !pillarLocations.Contains(new MapLocation(x + 1, z - 1)))
-                        {
-                            pillarCorner = Instantiate(pillar);
-                            pillarCorner.transform.position = new Vector3((x + 1) * scale, 0, (z - 1) * scale);
-                            pillarCorner.name = "Right Bottom";
-                            pillarLocations.Add(new MapLocation(x + 1, z - 1));
-                            pillarCorner.transform.localScale = new Vector3(1.01f, 1, 1.01f);
-                        }
+                        wall3.transform.Rotate(0, 180, 0);
                     }
-
+                
                     if (left)
                     {
                         GameObject wall4 = Instantiate(wallpiece);
                         wall4.transform.position = new Vector3(x * scale, 0, z * scale);
-                        wall4.transform.Rotate(0, -90, 0);
-                        wall4.name = "Left Wall";
-
-                        if (map[x - 1, z + 1] == 0 && map[x, z + 1] == 0 && !pillarLocations.Contains(new MapLocation(x - 1, z)))
-                        {
-                            pillarCorner = Instantiate(pillar);
-                            pillarCorner.transform.position = new Vector3((x - 1) * scale, 0, z * scale);
-                            pillarCorner.name = "Left Top";
-                            pillarLocations.Add(new MapLocation(x - 1, z));
-                            pillarCorner.transform.localScale = new Vector3(1.01f, 1, 1.01f);
-                        }
-
-                        if (map[x - 1, z - 1] == 0 && map[x, z - 1] == 0 && !pillarLocations.Contains(new MapLocation(x - 1, z - 1)))
-                        {
-                            pillarCorner = Instantiate(pillar);
-                            pillarCorner.transform.position = new Vector3((x - 1) * scale, 0, (z - 1) * scale);
-                            pillarCorner.name = "Left Bottom";
-                            pillarLocations.Add(new MapLocation(x - 1, z - 1));
-                            pillarCorner.transform.localScale = new Vector3(1.01f, 1, 1.01f);
-                        }
                     }
-
-
-                }
-            }
-
-        for (int z = 0; z < depth; z++)
-            for (int x = 0; x < width; x++)
-            {
-
-                GameObject doorway;
-                LocateDoors(x, z);
-                if (top)
-                {
-                    doorway = Instantiate(door);
-                    doorway.transform.position = new Vector3(x * scale, 0, z * scale);
-                    doorway.transform.Rotate(0, 180, 0);
-                    doorway.name = "Top Doorway";
-                    doorway.transform.Translate(0, 0, 0.01f);
-                }
-                if (bottom)
-                {
-                    doorway = Instantiate(door);
-                    doorway.transform.position = new Vector3(x * scale, 0, z * scale);
-                    doorway.name = "Bottom Doorway";
-                    doorway.transform.Translate(0, 0, 0.01f);
-                }
-                if (left)
-                {
-                    doorway = Instantiate(door);
-                    doorway.transform.position = new Vector3(x * scale, 0, z * scale);
-                    doorway.transform.Rotate(0, 90, 0);
-                    doorway.name = "Left Doorway";
-                    doorway.transform.Translate(0, 0, 0.01f);
-                }
-                if (right)
-                {
-                    doorway = Instantiate(door);
-                    doorway.transform.position = new Vector3(x * scale, 0, z * scale);
-                    doorway.transform.Rotate(0, -90, 0);
-                    doorway.name = "Right Doorway";
-                    doorway.transform.Translate(0, 0, 0.01f);
                 }
             }
     }
@@ -482,27 +287,6 @@ public class Maze : MonoBehaviour
         if (map[x + 1, z] == 1) right = true;
         if (map[x - 1, z] == 1) left = true;
     }
-
-    public void LocateDoors(int x, int z)
-    {
-        top = false;
-        bottom = false;
-        right = false;
-        left = false;
-
-        if (x <= 0 || x >= width - 1 || z <= 0 || z >= depth - 1) return;
-        if (piecePlaces[x, z + 1].piece != PieceType.Room && piecePlaces[x, z + 1].piece != PieceType.Wall) top = true;
-        if (piecePlaces[x, z - 1].piece != PieceType.Room && piecePlaces[x, z - 1].piece != PieceType.Wall) bottom = true;
-        if (piecePlaces[x + 1, z].piece != PieceType.Room && piecePlaces[x + 1, z].piece != PieceType.Wall) right = true;
-        if (piecePlaces[x - 1, z].piece != PieceType.Room && piecePlaces[x - 1, z].piece != PieceType.Wall) left = true;
-    }
-
-    bool IsRoom(int x, int z)
-    {
-        return (CountSquareNeighbours(x, z) > 1 && CountDiagonalNeighbours(x, z) >= 1 ||
-                                            CountSquareNeighbours(x, z) >= 1 && CountDiagonalNeighbours(x, z) > 1);
-    }
-
 
     bool Search2D(int c, int r, int[] pattern)
     {

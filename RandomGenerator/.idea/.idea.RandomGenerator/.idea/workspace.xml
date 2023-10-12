@@ -94,6 +94,9 @@
       <workItem from="1696393832161" duration="4763000" />
       <workItem from="1696468474931" duration="16188000" />
       <workItem from="1696555339014" duration="6194000" />
+      <workItem from="1696899739961" duration="8474000" />
+      <workItem from="1696987697742" duration="9620000" />
+      <workItem from="1697075748162" duration="729000" />
     </task>
     <servers />
   </component>
@@ -104,5 +107,24 @@
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Maze.cs</url>
+          <line>185</line>
+          <properties documentPath="C:\UnityProject\UnityRandomDungeonGenerator\RandomGenerator\Assets\Scripts\Maze.cs" initialLine="185" containingFunctionPresentation="Method 'DrawMap'">
+            <startOffsets>
+              <option value="6194" />
+            </startOffsets>
+            <endOffsets>
+              <option value="6195" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
